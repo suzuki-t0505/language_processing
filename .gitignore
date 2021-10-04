@@ -32,3 +32,6 @@ language_processing-*.tar
 s.json
 
 test.md
+
+*
+!/popular-names.txt
