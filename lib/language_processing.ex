@@ -8,8 +8,6 @@ defmodule LanguageProcessing do
     s = "stressed"
     String.reverse(s)
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
