@@ -16,10 +16,12 @@ defmodule LanguageProcessing do
   """
   def question01() do
     s = "パタトクカシーー"
-    String.at(s, 0) <> String.at(s, 2) <> String.at(s, 4) <> String.at(s, 6)
+    String.codepoints(s) 
+    |> Enum.with_index() 
+    |> Enum.filter(fn {_s,c} -> rem(c, 2) == 0 end) 
+    |> Enum.map( fn {s,_c} -> s end) 
+    |> Enum.join() 
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -35,8 +37,6 @@ defmodule LanguageProcessing do
     end
     Enum.join(s)
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -152,8 +152,6 @@ defmodule LanguageProcessing do
   """
   def question07(x \\ 12, y \\ "気温", z \\ 22.4) do
     IO.puts("#{x}時のとき#{y}は#{z}")
-
-    :ok
   end
 
   @doc """
@@ -169,8 +167,6 @@ defmodule LanguageProcessing do
     IO.puts(message)
     IO.puts("復号化")
     IO.puts(cipher(message))
-
-    :ok
   end
 
   defp cipher(str) do
