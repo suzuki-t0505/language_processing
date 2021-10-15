@@ -16,10 +16,12 @@ defmodule LanguageProcessing do
   """
   def question01() do
     s = "パタトクカシーー"
-    String.at(s, 0) <> String.at(s, 2) <> String.at(s, 4) <> String.at(s, 6)
+    String.codepoints(s) 
+    |> Enum.with_index() 
+    |> Enum.filter(fn {_s,c} -> rem(c, 2) == 0 end) 
+    |> Enum.map( fn {s,_c} -> s end) 
+    |> Enum.join() 
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -35,8 +37,6 @@ defmodule LanguageProcessing do
     end
     Enum.join(s)
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -152,8 +152,6 @@ defmodule LanguageProcessing do
   """
   def question07(x \\ 12, y \\ "気温", z \\ 22.4) do
     IO.puts("#{x}時のとき#{y}は#{z}")
-
-    :ok
   end
 
   @doc """
@@ -169,8 +167,6 @@ defmodule LanguageProcessing do
     IO.puts(message)
     IO.puts("復号化")
     IO.puts(cipher(message))
-
-    :ok
   end
 
   defp cipher(str) do
@@ -238,8 +234,6 @@ defmodule LanguageProcessing do
     [ans | _] = String.trim(a) |> String.split(" ")
 
     IO.puts(ans)
-
-    :ok
   end
 
   @doc """
@@ -250,8 +244,6 @@ defmodule LanguageProcessing do
     a = File.read!(@file_name)
     String.replace(a, "\t", " ")
     |> IO.puts()
-
-    :ok
   end
 
   # コマンド
@@ -259,8 +251,6 @@ defmodule LanguageProcessing do
   def question11_2() do
     {a, _} = System.cmd("sed", ["-e", "s/\t/ /g", @file_name])
     IO.puts(a)
-
-    :ok
   end
 
   @doc """
@@ -321,8 +311,6 @@ defmodule LanguageProcessing do
     end
 
     IO.puts(ans)
-
-    :ok
   end
 
   # コマンド
@@ -330,8 +318,6 @@ defmodule LanguageProcessing do
   def question13_2() do
     {a, _} = System.cmd("paste", ["col1_check.txt", "col2_check.txt"])
     IO.puts(a)
-
-    :ok
   end
 
   @doc """
@@ -346,8 +332,6 @@ defmodule LanguageProcessing do
       |> Enum.join("\n")
     a = a <> "\n"
     IO.puts(a)
-
-    :ok
   end
 
   # コマンド
@@ -355,8 +339,6 @@ defmodule LanguageProcessing do
   def question14_2(n \\ "5") do
     {a, _} = System.cmd("head", ["-n", to_string(n), @file_name])
     IO.puts(a)
-
-    :ok
   end
 
   @doc """
@@ -372,8 +354,6 @@ defmodule LanguageProcessing do
       |> Enum.join("\n")
     a = a <> "\n"
     IO.puts(a)
-
-    :ok
   end
 
   # コマンド
@@ -381,8 +361,6 @@ defmodule LanguageProcessing do
   def question15_2(n \\ "5") do
     {a, _} = System.cmd("tail", ["-n", to_string(n), @file_name])
     IO.puts(a)
-
-    :ok
   end
 
   @doc """
@@ -427,8 +405,6 @@ defmodule LanguageProcessing do
     |> Enum.uniq()
     |> length()
     |> IO.puts()
-
-    :ok
   end
 
   #コマンド
@@ -445,8 +421,6 @@ defmodule LanguageProcessing do
     {a, _} = System.cmd("wc", ["-l", file_name])
 
     String.split(a, " ") |> Enum.filter(& &1 != "") |> hd |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -463,8 +437,6 @@ defmodule LanguageProcessing do
     |> Enum.map(& Enum.join(&1, "\t"))
     |> Enum.join("\n")
     |> IO.puts()
-
-    :ok
   end
 
   # コマンド
@@ -472,8 +444,6 @@ defmodule LanguageProcessing do
   def question18_2() do
     {a, _} = System.cmd("sort", ["-rnk", "3", @file_name])
     IO.puts(a)
-
-    :ok
   end
 
   @doc """
@@ -494,8 +464,6 @@ defmodule LanguageProcessing do
         [num, name]
       end
     Enum.sort_by(a, & hd(&1), :desc) |> Enum.map(& Enum.join(&1, " ")) |> Enum.join("\n") |> IO.puts()
-
-    :ok
   end
 
   # コマンド
@@ -515,8 +483,6 @@ defmodule LanguageProcessing do
     {a, _} = System.cmd("sort", ["-rn", file_name])
 
     IO.puts(a)
-
-    :ok
   end
 
   @json_file "jawiki-country.json"
