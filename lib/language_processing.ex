@@ -519,8 +519,6 @@ defmodule LanguageProcessing do
     |> Enum.map(& Enum.join(&1, "\n"))
     |> Enum.join("\n")
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -533,7 +531,7 @@ defmodule LanguageProcessing do
     text =
       for text <- text_list do
         String.split(text, "\n")
-        |> Enum.map(& Regex.named_captures(~r/^\[\[Category:(?<category>.*?)(?|\|\*)\]\]$/, &1))
+        |> Enum.map(& Regex.named_captures(~r/^\[\[Category:(?<category>.*?)(\|.*)?\]\]$/, &1))
         |> Enum.filter(& &1 != nil)
         |> Enum.map(& &1["category"])
       end
@@ -541,8 +539,6 @@ defmodule LanguageProcessing do
     List.flatten(text)
     |> Enum.join("\n")
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
@@ -556,7 +552,7 @@ defmodule LanguageProcessing do
       for text <- text_list do
         section =
           String.split(text, "\n")
-          |> Enum.map(& Regex.named_captures(~r/^(?<level1>={2,}?) (?<section>.*) (?<level2>={2,}?)$/, &1))
+          |> Enum.map(& Regex.named_captures(~r/^(?<level1>={2,5})((\s|　)*)(?<section>.+?)((\s|　)*)(={2,5}?)/, &1))
           |> Enum.filter(& &1 != nil)
 
         for s <- section do
@@ -569,8 +565,6 @@ defmodule LanguageProcessing do
     List.flatten(text)
     |> Enum.join("\n")
     |> IO.puts()
-
-    :ok
   end
 
   @doc """
