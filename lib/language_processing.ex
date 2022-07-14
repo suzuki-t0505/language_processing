@@ -16,11 +16,11 @@ defmodule LanguageProcessing do
   """
   def question01() do
     s = "パタトクカシーー"
-    String.codepoints(s) 
-    |> Enum.with_index() 
-    |> Enum.filter(fn {_s,c} -> rem(c, 2) == 0 end) 
-    |> Enum.map( fn {s,_c} -> s end) 
-    |> Enum.join() 
+    String.codepoints(s)
+    |> Enum.with_index()
+    |> Enum.filter(fn {_char, index} -> rem(index, 2) == 0 end)
+    |> Enum.map( fn {char, _index} -> char end)
+    |> Enum.join()
     |> IO.puts()
   end
 
@@ -31,12 +31,13 @@ defmodule LanguageProcessing do
   def question02() do
     s1 = "パトカー"
     s2 = "タクシー"
-    s =
-    for n <- 0..String.length(s1) - 1 do
-      String.at(s1, n) <> String.at(s2, n)
-    end
-    Enum.join(s)
-    |> IO.puts()
+
+    s1 = String.graphemes(s1)
+    s2 = String.graphemes(s2)
+
+    Enum.zip(s1, s2)
+    |> Enum.map(fn {char1, char2} -> char1 <> char2 end)
+    |> Enum.join()
   end
 
   @doc """
@@ -48,7 +49,7 @@ defmodule LanguageProcessing do
     s = "Now I need a drink, alcoholic of course, after the heavy lectures involving quantum mechanics."
     String.replace(s, [",", "."], "")
     |> String.split(" ")
-    |> Enum.map(& String.length(&1))
+    |> Enum.map(fn word ->  String.length(word) end)
     |> IO.inspect()
 
     :ok
@@ -220,7 +221,7 @@ defmodule LanguageProcessing do
   def question10_1() do
     a = File.read!(@file_name)
     String.split(a, "\n")
-    |> Enum.filter(& &1 != "")
+    |> Enum.reject(fn data -> data == "" end)
     |> length()
     |> IO.inspect()
 
@@ -261,15 +262,23 @@ defmodule LanguageProcessing do
     a = File.read!(@file_name) |> String.split("\n")
 
     a
-    |>Enum.map(& String.split(&1, "\t") |> hd())
-    |> Enum.filter(& &1 != [""])
+    |>Enum.map(fn data ->
+      data
+      |> String.split("\t")
+      |> hd()
+    end)
+    |> Enum.reject(fn data -> data == [""] end)
     |> Enum.join("\n")
     |> filewrite("col1.txt")
 
     a
-    |> Enum.map(& String.split(&1, "\t"))
-    |> Enum.filter(& &1 != [""])
-    |> Enum.map(& tl(&1) |> hd())
+    |> Enum.map(fn data -> String.split(data, "\t") end)
+    |> Enum.reject(fn data -> data == [""] end)
+    |> Enum.map(fn data ->
+      data
+      |> tl()
+      |> hd()
+    end)
     |> List.insert_at(-1, "")
     |> Enum.join("\n")
     |> filewrite("col2.txt")
@@ -302,8 +311,8 @@ defmodule LanguageProcessing do
     12で作ったcol1.txtとcol2.txtを結合し，元のファイルの1列目と2列目をタブ区切りで並べたテキストファイルを作成せよ．確認にはpasteコマンドを用いよ．
   """
   def question13_1() do
-    col1 = File.read!("col1.txt") |> String.split("\n") |> Enum.filter(& &1 != "")
-    col2 = File.read!("col2.txt") |> String.split("\n") |> Enum.filter(& &1 != "")
+    col1 = File.read!("col1.txt") |> String.split("\n") |> Enum.reject(fn data -> data == "" end)
+    col2 = File.read!("col2.txt") |> String.split("\n") |> Enum.reject(fn data -> data == "" end)
 
     ans =
     for {a, b} <- Enum.zip(col1, col2) do
@@ -349,7 +358,7 @@ defmodule LanguageProcessing do
     a =
       File.read!(@file_name)
       |> String.split("\n")
-      |> Enum.filter(& &1 != "")
+      |> Enum.reject(fn data -> data == "" end)
       |> Enum.take(-n)
       |> Enum.join("\n")
     a = a <> "\n"
@@ -370,7 +379,7 @@ defmodule LanguageProcessing do
 
   def question16_1(n \\ 200) do
     File.mkdir_p("Write")
-    a = File.read!(@file_name) |> String.split("\n") |> Enum.filter(& &1 != "")
+    a = File.read!(@file_name) |> String.split("\n") |> Enum.reject(fn data -> data == "" end)
 
     {l, _} = Float.ceil(length(a) / n) - 1 |> Float.ratio()
 
@@ -400,8 +409,12 @@ defmodule LanguageProcessing do
   def question17_1() do
     File.read!(@file_name)
     |> String.split("\n")
-    |> Enum.map(& String.split(&1, "\t") |> hd())
-    |> Enum.filter(& &1 != "")
+    |> Enum.map(fn data ->
+      data
+      |> String.split("\t")
+      |> hd()
+    end)
+    |> Enum.reject(fn data -> data == "" end)
     |> Enum.uniq()
     |> length()
     |> IO.puts()
@@ -420,7 +433,11 @@ defmodule LanguageProcessing do
     filewrite(a, file_name)
     {a, _} = System.cmd("wc", ["-l", file_name])
 
-    String.split(a, " ") |> Enum.filter(& &1 != "") |> hd |> IO.puts()
+    a
+    |> String.split(" ")
+    |> Enum.reject(fn data -> data == "" end)
+    |> hd()
+    |> IO.puts()
   end
 
   @doc """
@@ -431,10 +448,10 @@ defmodule LanguageProcessing do
   def question18_1() do
     File.read!(@file_name)
     |> String.split("\n")
-    |> Enum.map(& String.split(&1, "\t"))
-    |> Enum.filter(& &1 != [""])
-    |> Enum.sort_by(& Enum.at(&1, 2), :desc)
-    |> Enum.map(& Enum.join(&1, "\t"))
+    |> Enum.map(fn data -> String.split(data, "\t") end)
+    |> Enum.filter(fn data -> data == [""] end)
+    |> Enum.sort_by(fn data -> Enum.at(data, 2) end, :desc)
+    |> Enum.map(fn data -> Enum.join(data, "\t") end)
     |> Enum.join("\n")
     |> IO.puts()
   end
@@ -454,8 +471,12 @@ defmodule LanguageProcessing do
     a =
       File.read!(@file_name)
       |> String.split("\n")
-      |> Enum.map(& String.split(&1, "\t") |> hd)
-      |> Enum.filter(& &1 != "")
+      |> Enum.map(fn data ->
+        data
+        |> String.split("\t")
+        |> hd
+      end)
+      |> Enum.reject(fn data -> data == "" end)
       |> Enum.frequencies()
       |> Enum.into([])
 
@@ -463,7 +484,12 @@ defmodule LanguageProcessing do
       for {name, num} <- a do
         [num, name]
       end
-    Enum.sort_by(a, & hd(&1), :desc) |> Enum.map(& Enum.join(&1, " ")) |> Enum.join("\n") |> IO.puts()
+
+      a
+    |> Enum.sort_by(fn data -> hd(data) end, :desc)
+    |> Enum.map(fn data -> Enum.join(data, " ") end)
+    |> Enum.join("\n")
+    |> IO.puts()
   end
 
   # コマンド
@@ -502,8 +528,8 @@ defmodule LanguageProcessing do
   defp put_text() do
     File.read!(@json_file)
     |> Poison.decode!()
-    |> Enum.filter(& &1["title"] == "イギリス")
-    |> Enum.map(& &1["text"])
+    |> Enum.filter(fn data -> data["title"] == "イギリス" end)
+    |> Enum.map(fn data -> data["text"] end)
   end
 
   @doc """
@@ -514,9 +540,13 @@ defmodule LanguageProcessing do
     pattern = ~r/^\[\[Category:.*\]\]$/
 
     put_text()
-    |> Enum.map(& String.split(&1, "\n") |> Enum.filter(fn t -> Regex.match?(pattern, t) end ))
-    |> Enum.filter(& &1 != [])
-    |> Enum.map(& Enum.join(&1, "\n"))
+    |> Enum.map(fn data ->
+      data
+      |> String.split("\n")
+      |> Enum.filter(fn t -> Regex.match?(pattern, t) end )
+    end)
+    |> Enum.reject(fn data -> data == [] end)
+    |> Enum.map(fn data -> Enum.join(data, "\n") end)
     |> Enum.join("\n")
     |> IO.puts()
   end
@@ -531,12 +561,15 @@ defmodule LanguageProcessing do
     text =
       for text <- text_list do
         String.split(text, "\n")
-        |> Enum.map(& Regex.named_captures(~r/^\[\[Category:(?<category>.*?)(\|.*)?\]\]$/, &1))
-        |> Enum.filter(& &1 != nil)
-        |> Enum.map(& &1["category"])
+        |> Enum.map(fn data ->
+          Regex.named_captures(~r/^\[\[Category:(?<category>.*?)(\|.*)?\]\]$/, data)
+        end)
+        |> Enum.filter(fn data -> data end)
+        |> Enum.map(fn data -> data["category"] end)
       end
 
-    List.flatten(text)
+    text
+    |> List.flatten()
     |> Enum.join("\n")
     |> IO.puts()
   end
@@ -552,8 +585,10 @@ defmodule LanguageProcessing do
       for text <- text_list do
         section =
           String.split(text, "\n")
-          |> Enum.map(& Regex.named_captures(~r/^(?<level1>={2,5})((\s|　)*)(?<section>.+?)((\s|　)*)(={2,5}?)/, &1))
-          |> Enum.filter(& &1 != nil)
+          |> Enum.map(fn data ->
+            Regex.named_captures(~r/^(?<level1>={2,5})((\s|　)*)(?<section>.+?)((\s|　)*)(={2,5}?)/, data)
+          end)
+          |> Enum.filter(fn data -> data end)
 
         for s <- section do
           level = String.length(s["level1"]) - 1
@@ -562,7 +597,8 @@ defmodule LanguageProcessing do
         end
       end
 
-    List.flatten(text)
+    text
+    |> List.flatten()
     |> Enum.join("\n")
     |> IO.puts()
   end
@@ -577,12 +613,15 @@ defmodule LanguageProcessing do
     text =
       for text <- text_list do
         String.split(text, "\n")
-        |> Enum.map(& Regex.named_captures(~r/\[\[ファイル:(?<file_name>.*?)\|/, &1))
-        |> Enum.filter(& &1 != nil)
-        |> Enum.map(& &1["file_name"])
+        |> Enum.map(fn data ->
+          Regex.named_captures(~r/\[\[ファイル:(?<file_name>.*?)\|/, data)
+        end)
+        |> Enum.filter(fn data -> data end)
+        |> Enum.map(fn data -> data["file_name"] end)
       end
 
-    List.flatten(text)
+    text
+    |> List.flatten()
     |> Enum.join("\n")
     |> IO.puts()
 
@@ -608,9 +647,11 @@ defmodule LanguageProcessing do
 
   defp put_basic_information(text) do
     text
-    |> Enum.map(& String.split(&1, "\n"))
+    |> Enum.map(fn data -> String.split(data, "\n") end)
     |> List.flatten()
-    |> Enum.map(& Regex.named_captures(~r/\|(?<filed>.+?) = *(?<value>.+)/, &1))
+    |> Enum.map(fn data ->
+      Regex.named_captures(~r/\|(?<filed>.+?) = *(?<value>.+)/, data)
+    end)
   end
 
   @doc """
@@ -626,7 +667,9 @@ defmodule LanguageProcessing do
       for %{"filed" => filed, "value" => value} <- text_list do
         "#{filed}: #{value}"
       end
-    Enum.map(text, & Regex.replace(~r/\'/, &1, ""))
+
+    text
+    |> Enum.map(fn data -> Regex.replace(~r/\'/, data, "") end)
     |> Enum.join("\n")
     |> IO.puts()
   end
@@ -646,15 +689,18 @@ defmodule LanguageProcessing do
         "#{filed}: #{value}"
       end
 
-    Enum.map(text, & Regex.replace(~r/\'/, &1, ""))
-    |> Enum.map(& remove_link(&1))
+    text
+    |> Enum.map(fn data -> Regex.replace(~r/\'/, data, "") end)
+    |> Enum.map(fn data -> remove_link(data) end)
     |> Enum.join("\n")
     |> IO.puts()
   end
 
   defp remove_link(text) do
     String.split(text, "<br />")
-    |> Enum.map(& Regex.replace(~r/\[\[(.+\||)|\]\]/, &1, ""))
+    |> Enum.map(fn data ->
+      Regex.replace(~r/\[\[(.+\||)|\]\]/, data, "")
+    end)
     |> Enum.join("<br />")
   end
 
@@ -672,9 +718,10 @@ defmodule LanguageProcessing do
         "#{filed}: #{value}"
       end
 
-    Enum.map(text, & Regex.replace(~r/\'/, &1, ""))
-    |> Enum.map(& remove_link(&1))
-    |> Enum.map(& remove_markups(&1))
+    text
+    |> Enum.map(fn data -> Regex.replace(~r/\'/, data, "") end)
+    |> Enum.map(fn data -> remove_link(data) end)
+    |> Enum.map(fn data -> remove_markups(data) end)
     |> Enum.join("\n")
     |> IO.puts()
   end
@@ -697,11 +744,14 @@ defmodule LanguageProcessing do
         "#{filed}: #{value}"
       end
 
-    Enum.map(text, & Regex.replace(~r/\'/, &1, ""))
-    |> Enum.map(& remove_link(&1))
-    |> Enum.map(& remove_markups(&1))
-    |> Enum.map(& Regex.named_captures(~r/国旗画像: (?<text>.*)/, &1))
-    |> Enum.filter(& &1 != nil)
+    text
+    |> Enum.map(fn data -> Regex.replace(~r/\'/, data, "") end)
+    |> Enum.map(fn data -> remove_link(data) end)
+    |> Enum.map(fn data -> remove_markups(data) end)
+    |> Enum.map(fn data ->
+      Regex.named_captures(~r/国旗画像: (?<text>.*)/, data)
+    end)
+    |> Enum.filter(fn data -> data end)
     |> Enum.map(fn %{"text" => tmp} -> String.replace(tmp, " ", "_") end)
     |> Enum.join("")
     |> get_url()
@@ -712,8 +762,8 @@ defmodule LanguageProcessing do
     json_text = HTTPoison.get!("https://commons.wikimedia.org/w/api.php?action=query&titles=File:"<> file_name <> "&prop=imageinfo&iiprop=url&format=json")
 
     json =
-    json_text.body
-    |> Poison.decode!
+      json_text.body
+      |> Poison.decode!
 
     json["query"]["pages"]["347935"]["imageinfo"]
     |> Enum.map(fn %{"url" => url} -> url end)
